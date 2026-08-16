@@ -1,4 +1,4 @@
-name: HTML Test
+name: Deploy Website
 
 on:
   push:
@@ -6,18 +6,20 @@ on:
       - main
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Check index.html
-        run: |
-          if [ -f index.html ]; then
-            echo "index.html exists"
-          else
-            echo "index.html is missing"
-            exit 1
-          fi
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/html/Git-huh-Actions
+            git pull origin main
+            echo "Deployment completed successfully!"
